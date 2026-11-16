@@ -414,6 +414,17 @@ body[data-tab="search"] .pills{margin-top:-8px}
 .th[data-t="auto"]{grid-column:1/-1;flex-direction:row;align-items:center}
 .th[data-t="auto"] .tp{flex:none;width:64px}
 .th[data-t="auto"] .tn{flex:1}
+
+/* no blue tap box on tabs/buttons */
+*{-webkit-tap-highlight-color:transparent}
+.tab,.tabs,button,a{-webkit-touch-callout:none;outline:none}
+.tab:focus,.tab:active{outline:none;background-color:transparent}
+.tab:focus-visible{outline:none}
+
+/* disable text selection / copy / callout */
+*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+img{-webkit-user-drag:none;user-drag:none}
 </style>
 <script>try{var _t=localStorage.getItem("theme");if(["dark","light","green","glass"].indexOf(_t)>-1)document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
 </head>
@@ -786,6 +797,9 @@ if(hasBridge()){try{window.aeroOnState(JSON.parse(AeroBridge.state()))}catch(e){
 (function(){var sp=document.getElementById('splash');if(!sp)return;var t0=Date.now(),done=0;
 function hide(){if(done)return;done=1;setTimeout(function(){sp.classList.add('out');setTimeout(function(){sp.remove()},600)},Math.max(0,500-(Date.now()-t0)))}
 if(document.readyState==='complete')hide();else addEventListener('load',hide);setTimeout(hide,6000)})();
+</script>
+<script>
+["copy","cut","contextmenu","selectstart","dragstart"].forEach(function(e){document.addEventListener(e,function(ev){var t=ev.target;if(t&&t.closest&&t.closest("input,textarea"))return;ev.preventDefault()},true)});
 </script>
 </body>
 </html>
