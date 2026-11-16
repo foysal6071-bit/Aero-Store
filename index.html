@@ -423,6 +423,18 @@ body[data-tab="search"] .pills{margin-top:-8px}
 *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text}
 img{-webkit-user-drag:none;user-drag:none}
+
+/* ===== install method (menu) ===== */
+.imb{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:14px 12px;border-radius:18px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-weight:700;font-size:13px;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.imb[aria-pressed="true"]{border-color:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 22%,transparent)}
+.imb[aria-pressed="true"] .tck{opacity:1;scale:1}
+.imn{font-size:12px;color:var(--mute);margin:10px 2px 0;line-height:1.5}
+#imLabel{margin-top:24px}
+.imb[data-m="wireless"]{grid-column:1/-1}
+#imPair[hidden]{display:none}
+#imLabel[hidden],#imGroup[hidden],#imNote[hidden]{display:none}
+:root[data-theme="glass"] .imb{background:var(--glass);border-color:var(--gline);-webkit-backdrop-filter:blur(18px) saturate(165%);backdrop-filter:blur(18px) saturate(165%)}
+:root[data-theme="glass"] .imb[aria-pressed="true"]{border-color:var(--brand)}
 </style>
 <script>try{var _t=localStorage.getItem("theme");if(["dark","light","green","glass"].indexOf(_t)>-1)document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
 </head>
@@ -466,6 +478,14 @@ img{-webkit-user-drag:none;user-drag:none}
     <button class="th" data-t="glass" aria-pressed="false"><span class="tp" style="--pbg:linear-gradient(135deg,#4b2fb8,#10102a 52%,#c2417f);--psf:rgba(255,255,255,.24);--pbr:#b9aeff;--pln:rgba(255,255,255,.35)"><span class="pa"></span><span class="pr"></span><span class="pr"></span></span><span class="tn">Glass<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></span></button>
     <button class="th" data-t="auto" aria-pressed="false"><span class="tp" style="--pbg:linear-gradient(90deg,#f3f4f8 50%,#0b0d17 50%);--psf:#8a8fa8;--pbr:#4b3df2;--pln:#c9ccd9"><span class="pa"></span><span class="pr"></span></span><span class="tn">Auto (follow phone)<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></span></button>
   </div>
+  <p class="dlabel" id="imLabel" hidden>Install method</p>
+  <div class="themes" id="imGroup" role="group" aria-label="Install method" hidden>
+    <button class="imb" data-m="normal" aria-pressed="true">Normal<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></button>
+    <button class="imb" data-m="shizuku" aria-pressed="false">Shizuku<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></button>
+    <button class="imb" data-m="wireless" aria-pressed="false">Wireless debugging<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></button>
+  </div>
+  <button class="imb" id="imPair" hidden style="margin-top:10px;width:100%">Pair Wireless debugging</button>
+  <p class="imn" id="imNote" hidden></p>
   <div class="dfoot"><b>Developed by Foysal</b><a href="mailto:foysal.8575@gmail.com">foysal.8575@gmail.com</a></div>
 </aside>
 
@@ -790,6 +810,22 @@ if(hasBridge()){$('#dlBtn').hidden=false;$('#dlsBtn').hidden=false}
 markTheme();
 drawPills();drawFeat();drawList();
 if(hasBridge()){try{window.aeroOnState(JSON.parse(AeroBridge.state()))}catch(e){}}
+
+/* install method (needs the updated Android wrapper) */
+const IM_NOTE={normal:'Opens the normal Android installer screen.',shizuku:'Installs without the installer screen. Shizuku must be installed and running.',wireless:'Installs without the installer screen using Wireless debugging (Android 11+). Tap Pair once and type the pairing code in the notification. Keep Wireless debugging on and stay on Wi-Fi.'};
+function markIm(){let m='normal';try{m=AeroBridge.getInstallMode()}catch(e){}
+ document.querySelectorAll('.imb[data-m]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.m===m)));
+ $('#imPair').hidden=m!=='wireless';
+ let p=false;try{p=AeroBridge.isPaired()}catch(e){}
+ $('#imPair').textContent=p?'Pair again':'Pair Wireless debugging';
+ $('#imNote').textContent=IM_NOTE[m]||''}
+if(hasBridge()&&typeof AeroBridge.setInstallMode==='function'){
+ ['#imLabel','#imGroup','#imNote'].forEach(q=>$(q).hidden=false);
+ document.querySelectorAll('.imb[data-m]').forEach(b=>b.addEventListener('click',()=>{try{AeroBridge.setInstallMode(b.dataset.m)}catch(e){}markIm()}));
+ $('#imPair').addEventListener('click',()=>{try{AeroBridge.pairWireless()}catch(e){}});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)markIm()});
+ markIm();
+}
 </script>
 <script>
 (function(){var sp=document.getElementById('splash');if(!sp)return;var t0=Date.now(),done=0;
