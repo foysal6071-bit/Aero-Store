@@ -336,6 +336,21 @@ body[data-tab="search"] .search{display:flex}
 :root[data-theme="glass"] .dx{border-color:var(--gline);color:var(--ink)}
 :root[data-theme="glass"] .dempty .de{background:linear-gradient(145deg,rgba(255,255,255,.2),rgba(255,255,255,.05));border-color:var(--gline);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 @media (prefers-reduced-motion:reduce){.bdg{animation:none}}
+
+/* ===== modern download style: slim progress bar, no ring ===== */
+.dlw .ring,.dlw .ckb{display:none}
+.dlw:is([data-s="run"],[data-s="spin"],[data-s="fail"]) .ico{scale:1;border-radius:22%}
+.dst.on::after{content:"";display:block;height:6px;margin-top:9px;border-radius:99px;
+ background:linear-gradient(90deg,color-mix(in srgb,var(--brand) 75%,#fff),var(--brand)) 0 0/calc(var(--p,0)*1%) 100% no-repeat,color-mix(in srgb,var(--brand) 20%,transparent);
+ box-shadow:0 0 10px color-mix(in srgb,var(--brand) 35%,transparent);transition:background-size .45s ease}
+.dst.on[data-s="spin"]::after{background:linear-gradient(90deg,transparent,var(--brand),transparent) -40% 0/40% 100% no-repeat,color-mix(in srgb,var(--brand) 20%,transparent);animation:dlind 1.2s ease-in-out infinite}
+@keyframes dlind{to{background-position:140% 0,0 0}}
+.dst.on[data-s="fail"]::after{display:none}
+.fc .dst.on::after{background:linear-gradient(90deg,#fff,#fff) 0 0/calc(var(--p,0)*1%) 100% no-repeat,rgba(255,255,255,.3);box-shadow:none}
+.fc .dst.on[data-s="spin"]::after{background:linear-gradient(90deg,transparent,#fff,transparent) -40% 0/40% 100% no-repeat,rgba(255,255,255,.3)}
+.head .dst.on::after{max-width:220px}
+.get{min-width:84px;text-align:center}
+@media (prefers-reduced-motion:reduce){.dst.on::after{transition:none}.dst.on[data-s="spin"]::after{animation:none}}
 </style>
 <script>try{var _t=localStorage.getItem("theme");if(["dark","light","green","glass"].indexOf(_t)>-1)document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
 </head>
@@ -618,6 +633,7 @@ function paintBtn(g,d){
 function paintTxt(t,d){
  const on=d.s==='run'||d.s==='spin'||d.s==='fail',txt=on?d.t:'';
  if(t.textContent!==txt)t.textContent=txt;
+ t.style.setProperty('--p',on?d.pct:0);t.dataset.s=d.s;
  t.classList.toggle('on',on);
  const box=t.closest('.row,.fc');if(box)box.classList.toggle('dlon',on);
 }
