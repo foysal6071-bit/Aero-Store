@@ -655,13 +655,12 @@ function fileNameOf(u){
 document.addEventListener('click',e=>{
  if(!hasBridge())return;
  const g=e.target.closest('a.get[data-k]');if(!g)return;
- const k=g.dataset.k;if(!isDirect(k))return;
- e.preventDefault();
- const s=dinfo(k).s;
+ const k=g.dataset.k,s=dinfo(k).s;
  try{
-  if(s==='run'||s==='spin'){delete DL[k];delete pend[k];cxl[k]=Date.now();AeroBridge.cancel(k)}
-  else if(s==='done'){AeroBridge.install(k)}
-  else{delete cxl[k];DL[k]={status:'running',pct:0,got:0,total:0};pend[k]=Date.now();AeroBridge.start(k,fileNameOf(k))}
+  if(s==='run'||s==='spin'){e.preventDefault();delete DL[k];delete pend[k];cxl[k]=Date.now();AeroBridge.cancel(k)}
+  else if(s==='done'){e.preventDefault();AeroBridge.install(k)}
+  else if(isDirect(k)){e.preventDefault();delete cxl[k];DL[k]={status:'running',pct:0,got:0,total:0};pend[k]=Date.now();AeroBridge.start(k,fileNameOf(k))}
+  else{AeroBridge.mark(k)} /* MediaFire page opens normally; the wrapper links the file to this app */
  }catch(err){}
  dlSync();paintAll();
 },true);
