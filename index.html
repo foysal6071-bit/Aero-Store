@@ -734,6 +734,7 @@ let DL={};const pend={},cxl={},RS={};
 /* installed-app detection: APPS[].pkg = Android package name */
 const PK={};APPS.forEach(a=>{if(a.pkg)PK[a.apk]=a.pkg});
 let INST=new Set();
+const LI={}; /* installs started here: the button says Installing right away, even before the app reports it */
 const hasBridge=()=>!!window.AeroBridge;
 const RING_SVG='<svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="rt" cx="50" cy="50" r="46.5"/><g transform="rotate(-90 50 50)"><circle class="rp" cx="50" cy="50" r="46.5" pathLength="100"/></g></svg><svg class="ckb" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="24"/><path d="M39 51l8 8 15-17" pathLength="100"/></svg>';
 const ringIcon=a=>`<span class="dlw" data-k="${esc(a.apk)}" data-s="idle">${icon(a)}${RING_SVG}</span>`;
@@ -742,6 +743,14 @@ function dinfo(k){
  const o=DL[k];
  if(o&&o.status==='installing')return{s:'inst',pct:100,t:'Installing\u2026'};
  if(o&&o.status==='installed')return{s:'insok',pct:100,t:'Installed'};
+ const L=LI[k];
+ if(L&&(!o||o.status==='done')){
+  const now=Date.now(),pk=PK[k];
+  if(L.ok){if(now-L.ok<2500)return{s:'insok',pct:100,t:'Installed'};delete LI[k]}
+  else if(!L.had&&pk&&INST.has(pk)){L.ok=now;setTimeout(paintAll,2600);return{s:'insok',pct:100,t:'Installed'}}
+  else if(now-L.t<(L.had?25000:45000))return{s:'inst',pct:100,t:'Installing\u2026'};
+  else delete LI[k];
+ }
  if(PK[k]&&INST.has(PK[k])&&(!o||o.status==='done'||o.status==='failed'))return{s:'open',pct:100,t:''};
  if(!o)return{s:'idle'};
  if(o.status==='done')return{s:'done',pct:100,t:''};
@@ -794,6 +803,7 @@ window.aeroOnState=m=>{
   if(!n[k]||(n[k].status==='failed'&&age<1500))n[k]={status:'running',pct:0,got:0,total:0};
   else delete pend[k];
  }
+ for(const k in n){if(n[k].status==='installing'||n[k].status==='installed')delete LI[k]}
  DL=n;dlSync();paintAll();
 };
 /* only direct https links go through the bridge; MediaFire pages keep the normal link */
@@ -813,7 +823,7 @@ document.addEventListener('click',e=>{
   if(s==='inst'||s==='insok'){e.preventDefault()}
   else if(s==='run'||s==='spin'){e.preventDefault();delete DL[k];delete pend[k];cxl[k]=Date.now();AeroBridge.cancel(k)}
   else if(s==='open'){e.preventDefault();AeroBridge.open(PK[k])}
-  else if(s==='done'){e.preventDefault();AeroBridge.install(k)}
+  else if(s==='done'){e.preventDefault();LI[k]={t:Date.now(),had:!!(PK[k]&&INST.has(PK[k]))};setTimeout(paintAll,46000);AeroBridge.install(k)}
   else if(isDirect(k)){e.preventDefault();delete cxl[k];DL[k]={status:'running',pct:0,got:0,total:0};pend[k]=Date.now();AeroBridge.start(k,fileNameOf(k))}
   else{AeroBridge.mark(k)} /* MediaFire page opens normally; the wrapper links the file to this app */
  }catch(err){}
@@ -883,6 +893,7 @@ function refreshInstalled(){
  }catch(e){}
 }
 window.aeroRefresh=refreshInstalled;
+document.addEventListener('visibilitychange',()=>{if(document.hidden)return;setTimeout(()=>{for(const k in LI){const L=LI[k];if(!L.ok&&Date.now()-L.t>1500&&!(PK[k]&&INST.has(PK[k])&&!L.had))delete LI[k]}paintAll()},2500)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshInstalled()});
 refreshInstalled();
 
