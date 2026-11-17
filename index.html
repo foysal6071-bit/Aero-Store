@@ -354,6 +354,18 @@ body[data-tab="search"] .search{display:flex}
 .head .dst.on::after{max-width:220px}
 .get{min-width:84px;text-align:center}
 .row .get{padding-left:16px;padding-right:16px}
+.gw{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.row .gw{flex-direction:column;gap:6px}
+.row .gw .get,.row .gw .un{min-width:84px}
+.un{display:inline-block;font:inherit;font-weight:700;font-size:14px;padding:8px 16px;border-radius:999px;white-space:nowrap;text-align:center;cursor:pointer;border:0;color:#e5484d;background:transparent;box-shadow:inset 0 0 0 1.5px currentColor}
+.un[hidden]{display:none}
+.row .un{padding-left:12px;padding-right:12px;font-size:13px;padding-top:6px;padding-bottom:6px}
+.fc .un{color:#fff}
+.gw.gwp{margin-top:20px}
+.gw.gwp .install{margin-top:0;flex:1;width:auto}
+.gw.gwp .un{padding:13px 22px;font-size:16px}
+:root[data-theme="glass"] .un{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.55);box-shadow:none;text-shadow:none}
+:root[data-theme="glass"] .row .un,:root[data-theme="glass"] .gwp .un{color:#e5484d}
 @media (prefers-reduced-motion:reduce){.dst.on::after{transition:none}.dst.on[data-s="spin"]::after{animation:none}}
 
 /* ===== skeleton loading screen (mirrors the real layout) ===== */
@@ -433,8 +445,20 @@ img{-webkit-user-drag:none;user-drag:none}
 .imb[aria-pressed="true"] .tck{opacity:1;scale:1}
 .imn{font-size:12px;color:var(--mute);margin:10px 2px 0;line-height:1.5}
 #imLabel{margin-top:24px}
-.imb[data-m="wireless"]{grid-column:1/-1}
 #imPair[hidden]{display:none}
+.imo{margin-top:10px;border-radius:18px;border:2px solid var(--line);background:var(--bg);overflow:hidden}
+.imo[hidden]{display:none}
+.imr{display:flex;width:100%;align-items:center;gap:12px;padding:14px;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.imr:first-child{border-top:0}
+.imi{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.imi b{font-size:14px}
+.imi span{font-size:12px;color:var(--mute);line-height:1.4}
+.chev{font-size:22px;color:var(--mute);line-height:1}
+.sw{flex:none;width:44px;height:26px;border-radius:99px;background:var(--line);position:relative;transition:background .2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.imr[aria-checked="true"] .sw{background:var(--brand)}
+.imr[aria-checked="true"] .sw::after{transform:translateX(18px)}
+:root[data-theme="glass"] .imo{background:var(--glass);border-color:var(--gline);-webkit-backdrop-filter:blur(18px) saturate(165%);backdrop-filter:blur(18px) saturate(165%)}
 #imLabel[hidden],#imGroup[hidden],#imNote[hidden]{display:none}
 :root[data-theme="glass"] .imb{background:var(--glass);border-color:var(--gline);-webkit-backdrop-filter:blur(18px) saturate(165%);backdrop-filter:blur(18px) saturate(165%)}
 :root[data-theme="glass"] .imb[aria-pressed="true"]{border-color:var(--brand)}
@@ -484,10 +508,14 @@ img{-webkit-user-drag:none;user-drag:none}
   <p class="dlabel" id="imLabel" hidden>Install method</p>
   <div class="themes" id="imGroup" role="group" aria-label="Install method" hidden>
     <button class="imb" data-m="normal" aria-pressed="true">Normal<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></button>
-    <button class="imb" data-m="shizuku" aria-pressed="false">Shizuku<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></button>
     <button class="imb" data-m="wireless" aria-pressed="false">Wireless debugging<svg class="tck" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.6 10.4l3 3 5.8-6.2"/></svg></button>
   </div>
   <button class="imb" id="imPair" hidden style="margin-top:10px;width:100%">Pair Wireless debugging</button>
+  <div class="imo" id="imOpts" hidden>
+   <button class="imr" id="optTcp" type="button" role="switch" aria-checked="false"><span class="imi"><b>TCP mode</b><span>Keeps installs working without Wi-Fi. (Wireless debugging must have connected once since reboot)</span></span><i class="sw"></i></button>
+   <button class="imr" id="optPort" type="button"><span class="imi"><b>TCP port</b><span id="optPortV">5555</span></span><span class="chev">&#8250;</span></button>
+   <button class="imr" id="optLeg" type="button" role="switch" aria-checked="false"><span class="imi"><b>Legacy pairing</b><span>Enter the pairing code in a dialog instead of a notification</span></span><i class="sw"></i></button>
+  </div>
   <p class="imn" id="imNote" hidden></p>
   <div class="dfoot"><div class="dcard"><span class="dav" aria-hidden="true">F</span><div class="dtx"><small>Developer</small><b>Foysal</b><a href="mailto:foysal.8575@gmail.com">foysal.8575@gmail.com</a></div></div></div>
 </aside>
@@ -570,10 +598,10 @@ function drawPills(){
  el.hidden=false;
  el.innerHTML=['',...cats].map(c=>`<button class="pill" data-c="${esc(c)}" aria-pressed="${c===cf}">${c?esc(c):'All'}</button>`).join('');
 }
-function drawFeat(){setTimeout(watch);const fl=APPS.map((a,i)=>a.feat&&tab!=='Search'&&!cf&&inTab(a)?`<div class="fc${hasShots(a)?' hs':''}${hasShots(a)&&a.land?' land':''}" data-i="${i}" style="background:${grad(a)}">${fshots(a)}<div class="fh">${ringIcon(a)}<h3>${esc(a.name)}</h3></div><p class="dst" data-k="${esc(a.apk)}"></p><p>${esc(a.desc)}</p><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a></div>`:'');$('#feat').innerHTML=fl.join('');const has=fl.some(Boolean);$('#feat').hidden=!has;$('#ftitle').hidden=!has;paintAll()}
+function drawFeat(){setTimeout(watch);const fl=APPS.map((a,i)=>a.feat&&tab!=='Search'&&!cf&&inTab(a)?`<div class="fc${hasShots(a)?' hs':''}${hasShots(a)&&a.land?' land':''}" data-i="${i}" style="background:${grad(a)}">${fshots(a)}<div class="fh">${ringIcon(a)}<h3>${esc(a.name)}</h3></div><p class="dst" data-k="${esc(a.apk)}"></p><p>${esc(a.desc)}</p><div class="gw"><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a><button type="button" class="un" data-k="${esc(a.apk)}" hidden>Uninstall</button></div></div>`:'');$('#feat').innerHTML=fl.join('');const has=fl.some(Boolean);$('#feat').hidden=!has;$('#ftitle').hidden=!has;paintAll()}
 function drawList(){
  const f=APPS.map((a,i)=>({a,i})).filter(({a})=>inTab(a)&&(!cf||a.cat===cf)&&(a.name+a.desc).toLowerCase().includes(q));
- $('#list').innerHTML=f.length?f.map(({a,i})=>`<div class="row" data-i="${i}">${ringIcon(a)}<div class="info"><b>${esc(a.name)}</b><span class="dst" data-k="${esc(a.apk)}"></span><span>${esc(a.desc)}</span><span>${esc(a.cat)} · ${esc(a.size)}</span></div><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a></div>`).join(''):`<p class="empty">No ${(tab==='Search'||tab==='All')?'results':tab.toLowerCase()} found. Try a different search.</p>`;
+ $('#list').innerHTML=f.length?f.map(({a,i})=>`<div class="row" data-i="${i}">${ringIcon(a)}<div class="info"><b>${esc(a.name)}</b><span class="dst" data-k="${esc(a.apk)}"></span><span>${esc(a.desc)}</span><span>${esc(a.cat)} · ${esc(a.size)}</span></div><div class="gw"><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a><button type="button" class="un" data-k="${esc(a.apk)}" hidden>Uninstall</button></div></div>`).join(''):`<p class="empty">No ${(tab==='Search'||tab==='All')?'results':tab.toLowerCase()} found. Try a different search.</p>`;
  paintAll();setTimeout(watch);
 }
 
@@ -592,7 +620,7 @@ function openPage(i,push=true){
  $('#ptitle').textContent=a.name;
  $('#pin').innerHTML=`<div class="head">${ringIcon(a)}<div><h3>${esc(a.name)}</h3><span class="kicker">${esc(a.tag||a.cat)}</span><span class="dst" data-k="${esc(a.apk)}"></span></div></div>
  <div class="meta"><div><b>${esc(a.size)}</b><span>Size</span></div><div><b>${esc(a.cat)}</b><span>Category</span></div></div>
- <a class="get install" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a>
+ <div class="gw gwp"><a class="get install" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a><button type="button" class="un" data-k="${esc(a.apk)}" hidden>Uninstall</button></div>
  ${shotsHtml(a,i)}
  <div class="sec"><h4>About this app</h4><p id="about" class="clamp">${esc(about)}</p><button class="more" id="more" hidden>Read more</button></div>
  ${infoHtml(a)}`;
@@ -653,7 +681,7 @@ gl.addEventListener('animationend',()=>gl.classList.remove('squash'));
 tabsEl.addEventListener('click',e=>{if(skipClick){e.stopPropagation();skipClick=false}},true);
 $('#pills').addEventListener('click',e=>{const b=e.target.closest('.pill');if(!b)return;cf=b.dataset.c;drawPills();drawFeat();drawList()});
 $('#q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();drawList()});
-for(const id of ['#list','#feat'])$(id).addEventListener('click',e=>{if(e.target.closest('.get'))return;const r=e.target.closest('[data-i]');if(r)openPage(+r.dataset.i)});
+for(const id of ['#list','#feat'])$(id).addEventListener('click',e=>{if(e.target.closest('.get,.un'))return;const r=e.target.closest('[data-i]');if(r)openPage(+r.dataset.i)});
 $('#back').addEventListener('click',goBack);
 document.querySelectorAll('.back').forEach(b=>{b.addEventListener('pointerdown',()=>{b.classList.remove('tap');void b.offsetWidth;b.classList.add('tap')});b.addEventListener('animationend',()=>b.classList.remove('tap'))});
 $('#page').addEventListener('scroll',e=>$('#pbar').classList.toggle('stuck',e.target.scrollTop>70),{passive:true});
@@ -669,7 +697,7 @@ document.addEventListener('keydown',e=>{
 });
 /* menu, themes */
 const drawer=$('#drawer'),scrim=$('#scrim');
-function markTheme(){const t=document.documentElement.getAttribute('data-theme')||'auto';document.querySelectorAll('.th').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===t)))}
+function markTheme(){const t=document.documentElement.getAttribute('data-theme')||'auto';try{window.AeroBridge&&AeroBridge.saveTheme&&AeroBridge.saveTheme(t)}catch(e){}document.querySelectorAll('.th').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===t)))}
 function setTheme(t){if(t==='auto'){document.documentElement.removeAttribute('data-theme');try{localStorage.removeItem('theme')}catch(e){}}else{document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}markTheme()}
 function openDrawer(){drawer.classList.add('open');scrim.classList.add('open');drawer.setAttribute('aria-hidden','false');drawer.tabIndex=-1;fx($('#dclose'),drawer)}
 function closeDrawer(focus=true){if(!drawer.classList.contains('open'))return;drawer.classList.remove('open');scrim.classList.remove('open');drawer.setAttribute('aria-hidden','true');if(focus)fx($('#menuBtn'))}
@@ -738,6 +766,7 @@ function paintAll(){
   const k=el.dataset.k,d=c[k]||(c[k]=dinfo(k));
   if(el.classList.contains('dlw'))paintRing(el,d);
   else if(el.classList.contains('get'))paintBtn(el,d);
+  else if(el.classList.contains('un'))el.hidden=!(d.s==='open'&&typeof AeroBridge.uninstall==='function');
   else if(el.classList.contains('dst'))paintTxt(el,d);
  });
 }
@@ -774,6 +803,13 @@ document.addEventListener('click',e=>{
   else{AeroBridge.mark(k)} /* MediaFire page opens normally; the wrapper links the file to this app */
  }catch(err){}
  dlSync();paintAll();
+},true);
+document.addEventListener('click',e=>{
+ if(!hasBridge())return;
+ const u=e.target.closest('.un[data-k]');if(!u)return;
+ e.preventDefault();e.stopPropagation();
+ const p=PK[u.dataset.k];if(!p)return;
+ try{AeroBridge.uninstall(p)}catch(err){}
 },true);
 document.addEventListener('animationend',e=>{const t=e.target;if(t.classList&&t.classList.contains('ckb'))t.parentNode.classList.remove('pop')});
 
@@ -836,10 +872,14 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshIns
 refreshInstalled();
 
 /* install method (needs the updated Android wrapper) */
-const IM_NOTE={normal:'Opens the normal Android installer screen.',shizuku:'Installs without the installer screen. Shizuku must be installed and running.',wireless:'Installs without the installer screen using Wireless debugging (Android 11+). Tap Pair once and type the pairing code in the notification. Keep Wireless debugging on and stay on Wi-Fi.'};
+const IM_NOTE={normal:'Opens the normal Android installer screen.',wireless:'Installs without the installer screen using Wireless debugging (Android 11+). Tap Pair once and type the pairing code in the notification. Keep Wireless debugging on and stay on Wi-Fi.'};
+function paintOpts(){let o={};try{o=JSON.parse(AeroBridge.getWirelessOpts())}catch(e){return}
+ $('#optTcp').setAttribute('aria-checked',String(!!o.tcp));$('#optLeg').setAttribute('aria-checked',String(!!o.legacy));$('#optPortV').textContent=o.port}
+window.aeroOpts=()=>{try{paintOpts()}catch(e){}};
 function markIm(){let m='normal';try{m=AeroBridge.getInstallMode()}catch(e){}
  document.querySelectorAll('.imb[data-m]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.m===m)));
  $('#imPair').hidden=m!=='wireless';
+ const oo=$('#imOpts');oo.hidden=!(m==='wireless'&&typeof AeroBridge.getWirelessOpts==='function');if(!oo.hidden)paintOpts();
  let p=false;try{p=AeroBridge.isPaired()}catch(e){}
  $('#imPair').textContent=p?'Pair again':'Pair Wireless debugging';
  $('#imNote').textContent=IM_NOTE[m]||''}
@@ -847,6 +887,10 @@ if(hasBridge()&&typeof AeroBridge.setInstallMode==='function'){
  ['#imLabel','#imGroup','#imNote'].forEach(q=>$(q).hidden=false);
  document.querySelectorAll('.imb[data-m]').forEach(b=>b.addEventListener('click',()=>{try{AeroBridge.setInstallMode(b.dataset.m)}catch(e){}markIm()}));
  $('#imPair').addEventListener('click',()=>{try{AeroBridge.pairWireless()}catch(e){}});
+ const flip=id=>$(id).getAttribute('aria-checked')!=='true';
+ $('#optTcp').addEventListener('click',()=>{try{AeroBridge.setTcpMode(flip('#optTcp'))}catch(e){}paintOpts()});
+ $('#optLeg').addEventListener('click',()=>{try{AeroBridge.setLegacyPairing(flip('#optLeg'))}catch(e){}paintOpts()});
+ $('#optPort').addEventListener('click',()=>{try{AeroBridge.editTcpPort()}catch(e){}});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)markIm()});
  markIm();
 }
