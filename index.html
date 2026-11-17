@@ -308,6 +308,16 @@ body[data-tab="search"] .search{display:flex}
 .head .dst{color:var(--brand);font-weight:600;font-size:13px;margin-top:2px}
 .row.dlon .info span:not(.dst),.fc.dlon>p:not(.dst){display:none}
 .get.cx{background:transparent;color:var(--brand);box-shadow:inset 0 0 0 1.5px currentColor}
+.get.ins{background:color-mix(in srgb,var(--brand) 14%,transparent);color:var(--brand);box-shadow:none;pointer-events:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.get.ins::before{content:"";width:13px;height:13px;border-radius:50%;border:2.2px solid currentColor;border-top-color:transparent;animation:insspin .8s linear infinite}
+@keyframes insspin{to{transform:rotate(360deg)}}
+.get.ok{background:#1fa971;color:#fff;box-shadow:none;pointer-events:none;animation:okpop .35s cubic-bezier(.3,1.6,.5,1)}
+.get.ok::before{content:"\2713\00a0";font-weight:800}
+@keyframes okpop{from{transform:scale(.88)}to{transform:none}}
+.fc .get.ins{background:rgba(255,255,255,.25);color:#fff}
+.fc .get.ok{background:#fff;color:#1fa971}
+:root[data-theme="glass"] .get.ins{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.4)}
+:root[data-theme="glass"] .get.ok{background:linear-gradient(135deg,#27c98b,#1fa971);color:#fff}
 .fc .get.cx{color:#fff}
 :root[data-theme="glass"] .get.cx,:root[data-theme="glass"] .fc .get.cx{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.6);text-shadow:none}
 @media (prefers-reduced-motion:reduce){.rp,.dlw .ico,.ring{transition:none}.dlw[data-s="spin"] .rp{animation:none}.dlw.pop .ckb,.dlw.pop .ckb path{animation:none}.dlw.pop .ckb{opacity:0}}
@@ -454,10 +464,11 @@ img{-webkit-user-drag:none;user-drag:none}
 .imi b{font-size:14px}
 .imi span{font-size:12px;color:var(--mute);line-height:1.4}
 .chev{font-size:22px;color:var(--mute);line-height:1}
+.oi{flex:none;width:24px;height:24px;fill:currentColor;color:var(--mute)}
 .sw{flex:none;width:44px;height:26px;border-radius:99px;background:var(--line);position:relative;transition:background .2s}
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
 .imr[aria-checked="true"] .sw{background:var(--brand)}
-.imr[aria-checked="true"] .sw::after{transform:translateX(18px)}
+.imr[aria-checked="true"] .sw::after{transform:translateX(18px);content:"\2713";color:var(--brand);font-size:13px;font-weight:800;line-height:20px;text-align:center}
 :root[data-theme="glass"] .imo{background:var(--glass);border-color:var(--gline);-webkit-backdrop-filter:blur(18px) saturate(165%);backdrop-filter:blur(18px) saturate(165%)}
 #imLabel[hidden],#imGroup[hidden],#imNote[hidden]{display:none}
 :root[data-theme="glass"] .imb{background:var(--glass);border-color:var(--gline);-webkit-backdrop-filter:blur(18px) saturate(165%);backdrop-filter:blur(18px) saturate(165%)}
@@ -512,9 +523,9 @@ img{-webkit-user-drag:none;user-drag:none}
   </div>
   <button class="imb" id="imPair" hidden style="margin-top:10px;width:100%">Pair Wireless debugging</button>
   <div class="imo" id="imOpts" hidden>
-   <button class="imr" id="optTcp" type="button" role="switch" aria-checked="false"><span class="imi"><b>TCP mode</b><span>Keeps installs working without Wi-Fi. (Wireless debugging must have connected once since reboot)</span></span><i class="sw"></i></button>
-   <button class="imr" id="optPort" type="button"><span class="imi"><b>TCP port</b><span id="optPortV">5555</span></span><span class="chev">&#8250;</span></button>
-   <button class="imr" id="optLeg" type="button" role="switch" aria-checked="false"><span class="imi"><b>Legacy pairing</b><span>Enter the pairing code in a dialog instead of a notification</span></span><i class="sw"></i></button>
+   <button class="imr" id="optTcp" type="button" role="switch" aria-checked="false"><svg class="oi" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z"/></svg><span class="imi"><b>TCP mode</b><span>Allows Aero Store to install without Wi-Fi and stops the repeated “Wireless debugging connected” notification. (Wireless debugging must have connected once since reboot)</span></span><i class="sw"></i></button>
+   <button class="imr" id="optPort" type="button"><svg class="oi" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10V8h-4V4h-2v4h-4V4H8v4H4v2h4v4H4v2h4v4h2v-4h4v4h2v-4h4v-2h-4v-4h4zm-6 4h-4v-4h4v4z"/></svg><span class="imi"><b>TCP port</b><span id="optPortV">5555</span></span><span class="chev">&#8250;</span></button>
+   <button class="imr" id="optLeg" type="button" role="switch" aria-checked="false"><svg class="oi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h18V4H4a2 2 0 0 0-2 2v11H0v3h14v-3H4V6zm19 2h-8a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1zm-1 9h-6v-7h6v7z"/></svg><span class="imi"><b>Legacy pairing</b><span>Enter the pairing code in a dialog instead of a notification</span></span><i class="sw"></i></button>
   </div>
   <p class="imn" id="imNote" hidden></p>
   <div class="dfoot"><div class="dcard"><span class="dav" aria-hidden="true">F</span><div class="dtx"><small>Developer</small><b>Foysal</b><a href="mailto:foysal.8575@gmail.com">foysal.8575@gmail.com</a></div></div></div>
@@ -598,10 +609,10 @@ function drawPills(){
  el.hidden=false;
  el.innerHTML=['',...cats].map(c=>`<button class="pill" data-c="${esc(c)}" aria-pressed="${c===cf}">${c?esc(c):'All'}</button>`).join('');
 }
-function drawFeat(){setTimeout(watch);const fl=APPS.map((a,i)=>a.feat&&tab!=='Search'&&!cf&&inTab(a)?`<div class="fc${hasShots(a)?' hs':''}${hasShots(a)&&a.land?' land':''}" data-i="${i}" style="background:${grad(a)}">${fshots(a)}<div class="fh">${ringIcon(a)}<h3>${esc(a.name)}</h3></div><p class="dst" data-k="${esc(a.apk)}"></p><p>${esc(a.desc)}</p><div class="gw"><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a><button type="button" class="un" data-k="${esc(a.apk)}" hidden>Uninstall</button></div></div>`:'');$('#feat').innerHTML=fl.join('');const has=fl.some(Boolean);$('#feat').hidden=!has;$('#ftitle').hidden=!has;paintAll()}
+function drawFeat(){setTimeout(watch);const fl=APPS.map((a,i)=>a.feat&&tab!=='Search'&&!cf&&inTab(a)?`<div class="fc${hasShots(a)?' hs':''}${hasShots(a)&&a.land?' land':''}" data-i="${i}" style="background:${grad(a)}">${fshots(a)}<div class="fh">${ringIcon(a)}<h3>${esc(a.name)}</h3></div><p class="dst" data-k="${esc(a.apk)}"></p><p>${esc(a.desc)}</p><div class="gw"><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a></div></div>`:'');$('#feat').innerHTML=fl.join('');const has=fl.some(Boolean);$('#feat').hidden=!has;$('#ftitle').hidden=!has;paintAll()}
 function drawList(){
  const f=APPS.map((a,i)=>({a,i})).filter(({a})=>inTab(a)&&(!cf||a.cat===cf)&&(a.name+a.desc).toLowerCase().includes(q));
- $('#list').innerHTML=f.length?f.map(({a,i})=>`<div class="row" data-i="${i}">${ringIcon(a)}<div class="info"><b>${esc(a.name)}</b><span class="dst" data-k="${esc(a.apk)}"></span><span>${esc(a.desc)}</span><span>${esc(a.cat)} · ${esc(a.size)}</span></div><div class="gw"><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a><button type="button" class="un" data-k="${esc(a.apk)}" hidden>Uninstall</button></div></div>`).join(''):`<p class="empty">No ${(tab==='Search'||tab==='All')?'results':tab.toLowerCase()} found. Try a different search.</p>`;
+ $('#list').innerHTML=f.length?f.map(({a,i})=>`<div class="row" data-i="${i}">${ringIcon(a)}<div class="info"><b>${esc(a.name)}</b><span class="dst" data-k="${esc(a.apk)}"></span><span>${esc(a.desc)}</span><span>${esc(a.cat)} · ${esc(a.size)}</span></div><div class="gw"><a class="get" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a></div></div>`).join(''):`<p class="empty">No ${(tab==='Search'||tab==='All')?'results':tab.toLowerCase()} found. Try a different search.</p>`;
  paintAll();setTimeout(watch);
 }
 
@@ -620,7 +631,7 @@ function openPage(i,push=true){
  $('#ptitle').textContent=a.name;
  $('#pin').innerHTML=`<div class="head">${ringIcon(a)}<div><h3>${esc(a.name)}</h3><span class="kicker">${esc(a.tag||a.cat)}</span><span class="dst" data-k="${esc(a.apk)}"></span></div></div>
  <div class="meta"><div><b>${esc(a.size)}</b><span>Size</span></div><div><b>${esc(a.cat)}</b><span>Category</span></div></div>
- <div class="gw gwp"><a class="get install" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a><button type="button" class="un" data-k="${esc(a.apk)}" hidden>Uninstall</button></div>
+ <div class="gw gwp"><button type="button" class="un" data-k="${esc(a.apk)}" hidden>Uninstall</button><a class="get install" data-k="${esc(a.apk)}" href="${esc(a.apk)}" target="_blank" rel="noopener">Download</a></div>
  ${shotsHtml(a,i)}
  <div class="sec"><h4>About this app</h4><p id="about" class="clamp">${esc(about)}</p><button class="more" id="more" hidden>Read more</button></div>
  ${infoHtml(a)}`;
@@ -729,6 +740,8 @@ const ringIcon=a=>`<span class="dlw" data-k="${esc(a.apk)}" data-s="idle">${icon
 const mbs=b=>{const m=b/1048576;return m>=10?String(Math.round(m)):String(+m.toFixed(1))};
 function dinfo(k){
  const o=DL[k];
+ if(o&&o.status==='installing')return{s:'inst',pct:100,t:'Installing\u2026'};
+ if(o&&o.status==='installed')return{s:'insok',pct:100,t:'Installed'};
  if(PK[k]&&INST.has(PK[k])&&(!o||o.status==='done'||o.status==='failed'))return{s:'open',pct:100,t:''};
  if(!o)return{s:'idle'};
  if(o.status==='done')return{s:'done',pct:100,t:''};
@@ -746,11 +759,12 @@ function paintRing(w,d){
  const rp=w.querySelector('.rp');
  if(rp)rp.style.strokeDashoffset=d.s==='run'?String(100-d.pct):'';
 }
-const BTN={idle:'Download',run:'Cancel',spin:'Cancel',done:'Install',fail:'Retry',open:'Open'};
+const BTN={idle:'Download',run:'Cancel',spin:'Cancel',done:'Install',fail:'Retry',open:'Open',inst:'Installing\u2026',insok:'Installed'};
 function paintBtn(g,d){
  if(g.dataset.gs===d.s)return;
  g.dataset.gs=d.s;g.textContent=BTN[d.s];
  g.classList.toggle('cx',d.s==='run'||d.s==='spin');
+ g.classList.toggle('ins',d.s==='inst');g.classList.toggle('ok',d.s==='insok');
 }
 function paintTxt(t,d){
  const on=d.s==='run'||d.s==='spin'||d.s==='fail',txt=on?d.t:'';
@@ -796,7 +810,8 @@ document.addEventListener('click',e=>{
  const g=e.target.closest('a.get[data-k]');if(!g)return;
  const k=g.dataset.k,s=dinfo(k).s;
  try{
-  if(s==='run'||s==='spin'){e.preventDefault();delete DL[k];delete pend[k];cxl[k]=Date.now();AeroBridge.cancel(k)}
+  if(s==='inst'||s==='insok'){e.preventDefault()}
+  else if(s==='run'||s==='spin'){e.preventDefault();delete DL[k];delete pend[k];cxl[k]=Date.now();AeroBridge.cancel(k)}
   else if(s==='open'){e.preventDefault();AeroBridge.open(PK[k])}
   else if(s==='done'){e.preventDefault();AeroBridge.install(k)}
   else if(isDirect(k)){e.preventDefault();delete cxl[k];DL[k]={status:'running',pct:0,got:0,total:0};pend[k]=Date.now();AeroBridge.start(k,fileNameOf(k))}
@@ -815,7 +830,7 @@ document.addEventListener('animationend',e=>{const t=e.target;if(t.classList&&t.
 
 /* ===== Downloads page ===== */
 const dls=$('#dls');
-const dlGroup=o=>o.status==='done'?'done':o.status==='failed'?'fail':'act';
+const dlGroup=o=>(o.status==='done'||o.status==='installing'||o.status==='installed')?'done':o.status==='failed'?'fail':'act';
 let dlSig=null;
 function dlCard(a,k,g){
  const kk=esc(k);
@@ -872,7 +887,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshIns
 refreshInstalled();
 
 /* install method (needs the updated Android wrapper) */
-const IM_NOTE={normal:'Opens the normal Android installer screen.',wireless:'Installs without the installer screen using Wireless debugging (Android 11+). Tap Pair once and type the pairing code in the notification. Keep Wireless debugging on and stay on Wi-Fi.'};
+const IM_NOTE={normal:'Opens the normal Android installer screen.',wireless:'Installs without the installer screen using Wireless debugging (Android 11+). Tap Pair once and type the pairing code in the notification. Keep Wireless debugging on. With TCP mode on, repeated installs do not show the \u201cWireless debugging connected\u201d notification.'};
 function paintOpts(){let o={};try{o=JSON.parse(AeroBridge.getWirelessOpts())}catch(e){return}
  $('#optTcp').setAttribute('aria-checked',String(!!o.tcp));$('#optLeg').setAttribute('aria-checked',String(!!o.legacy));$('#optPortV').textContent=o.port}
 window.aeroOpts=()=>{try{paintOpts()}catch(e){}};
