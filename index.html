@@ -804,6 +804,9 @@ window.aeroOnState=m=>{
   else delete pend[k];
  }
  for(const k in n){if(n[k].status==='installing'||n[k].status==='installed')delete LI[k]}
+ /* silent install: a download that just finished goes straight to installing, so the button says Installing right away */
+ let silent=false;try{silent=typeof AeroBridge.isSilent==='function'&&AeroBridge.isSilent()}catch(e){}
+ if(silent)for(const k in n){const p=DL[k];if(p&&(p.status==='running'||p.status==='paused')&&n[k].status==='done'&&!LI[k])LI[k]={t:now,had:!!(PK[k]&&INST.has(PK[k]))}}
  DL=n;dlSync();paintAll();
 };
 /* only direct https links go through the bridge; MediaFire pages keep the normal link */
@@ -914,8 +917,8 @@ if(hasBridge()&&typeof AeroBridge.setInstallMode==='function'){
  document.querySelectorAll('.imb[data-m]').forEach(b=>b.addEventListener('click',()=>{try{AeroBridge.setInstallMode(b.dataset.m)}catch(e){}markIm()}));
  $('#imPair').addEventListener('click',()=>{try{AeroBridge.pairWireless()}catch(e){}});
  const flip=id=>$(id).getAttribute('aria-checked')!=='true';
- $('#optTcp').addEventListener('click',()=>{try{AeroBridge.setTcpMode(flip('#optTcp'))}catch(e){}paintOpts()});
- $('#optLeg').addEventListener('click',()=>{try{AeroBridge.setLegacyPairing(flip('#optLeg'))}catch(e){}paintOpts()});
+ $('#optTcp').addEventListener('click',()=>{const on=flip('#optTcp');$('#optTcp').setAttribute('aria-checked',String(on));try{AeroBridge.setTcpMode(on)}catch(e){}setTimeout(paintOpts,200)});
+ $('#optLeg').addEventListener('click',()=>{const on=flip('#optLeg');$('#optLeg').setAttribute('aria-checked',String(on));try{AeroBridge.setLegacyPairing(on)}catch(e){}setTimeout(paintOpts,200)});
  $('#optPort').addEventListener('click',()=>{try{AeroBridge.editTcpPort()}catch(e){}});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)markIm()});
  markIm();
