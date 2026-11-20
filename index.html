@@ -737,6 +737,16 @@ let DL={};const pend={},cxl={},RS={};
 /* installed-app detection: APPS[].pkg = Android package name */
 const PK={};APPS.forEach(a=>{if(a.pkg)PK[a.apk]=a.pkg});
 let INST=new Set();
+/* updates: catalog version (APPS[].ver) vs the version installed on the phone */
+const CV={};APPS.forEach(a=>{if(a.pkg)CV[a.apk]=a.ver||''});
+let VER={};const UPD={};
+const vnum=v=>(String(v||'').match(/\d+/g)||[]).map(Number);
+function vcmp(a,b){a=vnum(a);b=vnum(b);for(let i=0;i<Math.max(a.length,b.length);i++){const x=a[i]||0,y=b[i]||0;if(x!==y)return x>y?1:-1}return 0}
+const verKey=k=>'aeroVer:'+PK[k];
+function markVer(k){try{if(CV[k]&&localStorage.getItem(verKey(k))!==CV[k])localStorage.setItem(verKey(k),CV[k])}catch(e){}}
+function needsUpd(k){const p=PK[k],iv=VER[p];if(!p||!INST.has(p)||!iv||!CV[k])return false;
+ try{if(localStorage.getItem(verKey(k))===CV[k])return false}catch(e){}
+ return vcmp(CV[k],iv)>0}
 const LI={}; /* installs started here: the button says Installing right away, even before the app reports it */
 const hasBridge=()=>!!window.AeroBridge;
 const RING_SVG='<svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="rt" cx="50" cy="50" r="46.5"/><g transform="rotate(-90 50 50)"><circle class="rp" cx="50" cy="50" r="46.5" pathLength="100"/></g></svg><svg class="ckb" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="24"/><path d="M39 51l8 8 15-17" pathLength="100"/></svg>';
@@ -745,16 +755,19 @@ const mbs=b=>{const m=b/1048576;return m>=10?String(Math.round(m)):String(+m.toF
 function dinfo(k){
  const o=DL[k];
  if(o&&o.status==='installing')return{s:'inst',pct:100,t:'Installing\u2026'};
- if(o&&o.status==='installed')return{s:'insok',pct:100,t:'Installed'};
+ if(o&&o.status==='installed'){markVer(k);return{s:'insok',pct:100,t:'Installed'}}
  const L=LI[k];
  if(L&&(!o||o.status==='done')){
   const now=Date.now(),pk=PK[k];
-  if(L.ok){if(now-L.ok<2500)return{s:'insok',pct:100,t:'Installed'};delete LI[k]}
-  else if(!L.had&&pk&&INST.has(pk)){L.ok=now;setTimeout(paintAll,2600);return{s:'insok',pct:100,t:'Installed'}}
+  if(L.ok){markVer(k);if(now-L.ok<2500)return{s:'insok',pct:100,t:'Installed'};delete LI[k]}
+  else if(!L.had&&pk&&INST.has(pk)){markVer(k);L.ok=now;setTimeout(paintAll,2600);return{s:'insok',pct:100,t:'Installed'}}
   else if(now-L.t<(L.had?25000:45000))return{s:'inst',pct:100,t:'Installing\u2026'};
   else delete LI[k];
  }
- if(PK[k]&&INST.has(PK[k])&&(!o||o.status==='done'||o.status==='failed'))return{s:'open',pct:100,t:''};
+ if(PK[k]&&INST.has(PK[k])){
+  if(needsUpd(k)){if(!o||(o.status==='done'&&!UPD[k]))return{s:'upd',pct:100,t:''}}
+  else if(!o||o.status==='done'||o.status==='failed')return{s:'open',pct:100,t:''};
+ }
  if(!o)return{s:'idle'};
  if(o.status==='done')return{s:'done',pct:100,t:''};
  if(o.status==='failed')return{s:'fail',pct:100,t:'Download failed'};
@@ -771,7 +784,7 @@ function paintRing(w,d){
  const rp=w.querySelector('.rp');
  if(rp)rp.style.strokeDashoffset=d.s==='run'?String(100-d.pct):'';
 }
-const BTN={idle:'Download',run:'Cancel',spin:'Cancel',done:'Install',fail:'Retry',open:'Open',inst:'Installing\u2026',insok:'Installed'};
+const BTN={idle:'Download',run:'Cancel',spin:'Cancel',done:'Install',fail:'Retry',open:'Open',upd:'Update',inst:'Installing\u2026',insok:'Installed'};
 function paintBtn(g,d){
  if(g.dataset.gs===d.s)return;
  g.dataset.gs=d.s;g.textContent=BTN[d.s];
@@ -792,7 +805,7 @@ function paintAll(){
   const k=el.dataset.k,d=c[k]||(c[k]=dinfo(k));
   if(el.classList.contains('dlw'))paintRing(el,d);
   else if(el.classList.contains('get'))paintBtn(el,d);
-  else if(el.classList.contains('un'))el.hidden=!(d.s==='open'&&typeof AeroBridge.uninstall==='function');
+  else if(el.classList.contains('un'))el.hidden=!((d.s==='open'||d.s==='upd')&&typeof AeroBridge.uninstall==='function');
   else if(el.classList.contains('dst'))paintTxt(el,d);
  });
 }
@@ -826,6 +839,7 @@ document.addEventListener('click',e=>{
  const g=e.target.closest('a.get[data-k]');if(!g)return;
  const k=g.dataset.k,s=dinfo(k).s;
  try{
+  if(s==='upd')UPD[k]=1;
   if(s==='inst'||s==='insok'){e.preventDefault()}
   else if(s==='run'||s==='spin'){e.preventDefault();delete DL[k];delete pend[k];cxl[k]=Date.now();AeroBridge.cancel(k)}
   else if(s==='open'){e.preventDefault();AeroBridge.open(PK[k])}
@@ -840,8 +854,25 @@ document.addEventListener('click',e=>{
  const u=e.target.closest('.un[data-k]');if(!u)return;
  e.preventDefault();e.stopPropagation();
  const p=PK[u.dataset.k];if(!p)return;
- try{AeroBridge.uninstall(p)}catch(err){}
+ const a=APPS.find(x=>x.apk===u.dataset.k);
+ askUninstall(a?a.name:p,()=>{try{AeroBridge.uninstall(p)}catch(err){}});
 },true);
+/* confirmation popup (store theme): shown right after Uninstall is tapped; Uninstall inside it does the removal */
+(function(){
+ const st=document.createElement('style');
+ st.textContent='.cfm{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,7,16,.55);animation:cfin .15s}@keyframes cfin{from{opacity:0}}.cfm .bx{width:100%;max-width:340px;border-radius:24px;padding:22px 20px 16px;background:var(--surface,#fff);color:var(--ink,#0f1222);box-shadow:0 20px 60px rgba(0,0,0,.35)}.cfm h3{margin:0 0 6px;font-size:19px;font-weight:800}.cfm p{margin:0 0 18px;font-size:14px;color:var(--mute,#6a6f85)}.cfm .bs{display:flex;gap:10px}.cfm button{flex:1;font:inherit;font-weight:700;font-size:15px;padding:12px;border-radius:999px;border:0;cursor:pointer}.cfm .no{background:var(--bg,#f3f4f8);color:var(--ink,#0f1222)}.cfm .yes{background:#e5484d;color:#fff}';
+ document.head.appendChild(st);
+ window.askUninstall=function(name,go){
+  const d=document.createElement('div');d.className='cfm';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+  d.innerHTML='<div class="bx"><h3></h3><p>The app and its data will be removed from your phone.</p><div class="bs"><button type="button" class="no">Cancel</button><button type="button" class="yes">Uninstall</button></div></div>';
+  d.querySelector('h3').textContent='Uninstall '+name+'?';
+  const close=()=>d.remove();
+  d.addEventListener('click',e=>{if(e.target===d)close()});
+  d.querySelector('.no').addEventListener('click',close);
+  d.querySelector('.yes').addEventListener('click',()=>{close();go()});
+  document.body.appendChild(d);
+ };
+})();
 document.addEventListener('animationend',e=>{const t=e.target;if(t.classList&&t.classList.contains('ckb'))t.parentNode.classList.remove('pop')});
 
 /* ===== Downloads page ===== */
@@ -894,7 +925,14 @@ function refreshInstalled(){
  try{
   const l=JSON.parse(AeroBridge.installed(JSON.stringify(Object.values(PK))));
   const n=new Set(l);
-  if(n.size===INST.size&&l.every(x=>INST.has(x)))return;
+  let vs={};try{if(typeof AeroBridge.versions==='function')vs=JSON.parse(AeroBridge.versions(JSON.stringify(Object.values(PK))))}catch(e){}
+  const vch=JSON.stringify(vs)!==JSON.stringify(VER);VER=vs;
+  if(!vch&&n.size===INST.size&&l.every(x=>INST.has(x)))return;
+  /* an app was uninstalled: forget its old downloaded APK and update marker, so the next tap downloads the latest version */
+  for(const k in PK){const pk=PK[k];if(INST.has(pk)&&!n.has(pk)){
+   try{localStorage.removeItem(verKey(k))}catch(e){}delete UPD[k];
+   if(DL[k]&&DL[k].status==='done'&&!LI[k]){try{AeroBridge.cancel(k)}catch(e){}delete DL[k];cxl[k]=Date.now()}
+  }}
   INST=n;dlSync();paintAll();
  }catch(e){}
 }
